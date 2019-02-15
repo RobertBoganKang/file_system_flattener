@@ -18,12 +18,11 @@ def open_fs(folder):
     fs = glob.glob(os.path.join(folder, '**/*'), recursive=True)
     # search hidden files
     fs = fs + glob.glob(os.path.join(folder, '**/.*'), recursive=True)
+    # select files
     fs_file = [x for x in fs if os.path.isfile(x)]
     fs_folder = [x for x in fs if os.path.isdir(x)]
-    print(fs_folder)
     fs_file.sort()
     fs_folder.sort()
-    print(fs_file)
     print('Flatten file system ~')
     # write move script to file
     restore_have = False
