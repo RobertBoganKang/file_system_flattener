@@ -5,11 +5,14 @@ import subprocess
 
 
 class FileSystemFlatten(object):
+    """
+    flatten and restore the file system
+    """
     def __init__(self):
         # the name of restore script
         self.restore_script = '#restore.sh'
         # separator of file name
-        self.separator = '##'
+        self.separator = '__'
 
     @staticmethod
     def add_quote(string):
@@ -97,11 +100,11 @@ class FileSystemFlatten(object):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='flatten and restore the file system')
     parser.add_argument('--input', '-i', help='the target folder for operation', type=str, default='in')
-    parser.add_argument('--restore', '-r', action='store_true', help='restore the file system')
+    parser.add_argument('--restore', '-r', action='store_true', help='if have: restore the file system')
     args = parser.parse_args()
 
-    fs = FileSystemFlatten()
+    flatten = FileSystemFlatten()
     if args.restore:
-        fs.close_fs(args.input)
+        flatten.close_fs(args.input)
     else:
-        fs.open_fs(args.input)
+        flatten.open_fs(args.input)
