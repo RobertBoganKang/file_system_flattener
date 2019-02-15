@@ -1,3 +1,4 @@
+import argparse
 import glob
 import os
 import subprocess
@@ -79,5 +80,11 @@ def close_fs(folder):
 
 
 if __name__ == '__main__':
-    open_fs('in')
-    close_fs('in')
+    parser = argparse.ArgumentParser(description='flatten and restore the file system')
+    parser.add_argument('--input', '-i', help='the target folder for operation', type=str, default='in')
+    parser.add_argument('--restore', '-r', action='store_true', help='restore the file system')
+    args = parser.parse_args()
+    if args.restore:
+        close_fs(args.input)
+    else:
+        open_fs(args.input)
