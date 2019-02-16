@@ -2,6 +2,7 @@ import argparse
 import glob
 import os
 import subprocess
+from itertools import groupby
 
 
 class FileSystemFlatten(object):
@@ -38,15 +39,7 @@ class FileSystemFlatten(object):
             lines = r.readlines()
             lines = [x.strip() for x in lines]
             # detect repeat and delete
-            i = 0
-            while i < len(lines) - 1:
-                rebuild_lines.append(lines[i])
-                if lines[i] == lines[i + 1]:
-                    i += 2
-                else:
-                    # incremental
-                    i += 1
-            # last line is '\n', thus do not add it
+            rebuild_lines = [x[0] for x in groupby(lines)]
 
         # rewrite file
         with open(path, 'w+') as r:
@@ -62,7 +55,7 @@ class FileSystemFlatten(object):
         print('=' * 50)
         print('-->[{}] flattening ~'.format(self.input))
         # start operation
-        print('\r~~>Read', end='')
+        print('\r~~>[Read...', end='')
         # search files
         fs = glob.glob(os.path.join(self.input, '**/*'), recursive=True)
         # search hidden files
@@ -72,7 +65,7 @@ class FileSystemFlatten(object):
         fs_folder = [x for x in fs if os.path.isdir(x)]
         fs_file.sort()
         fs_folder.sort()
-        print('\r~~>Read-->Flatten', end='')
+        print('\r~~>[Read|-->|Flatten...', end='')
         # write move script to file
         restore_have = False
         if os.path.exists(os.path.join(self.input, self.restore_script)):
@@ -108,6 +101,7 @@ class FileSystemFlatten(object):
 
             # write delete file script finally
             shell.write('rm ' + self.add_quote(os.path.join('$p', '$n')))
+            shell.write('\n')
 
             # clean the script
             self.delete_repeat()
@@ -118,7 +112,7 @@ class FileSystemFlatten(object):
                 folder_remove_command = ['rm', '-R', f]
                 subprocess.run(folder_remove_command)
 
-        print('\r~~>Read-->Flatten-->Done.')
+        print('\r~~>[Read|-->|Flatten|-->|Done]')
         print('=' * 50)
 
     def close_fs(self):
@@ -131,9 +125,9 @@ class FileSystemFlatten(object):
             return
         print('=' * 50)
         print('-->[{}] restoring ~'.format(self.input))
-        print('\r~~>Restore', end='')
+        print('\r~~>[Restore...', end='')
         subprocess.run(['bash', os.path.join(self.input, self.restore_script)])
-        print('\r~~>Restore-->Done.')
+        print('\r~~>[Restore|-->|Done]')
         print('=' * 50)
 
 
