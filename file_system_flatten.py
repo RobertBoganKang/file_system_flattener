@@ -9,13 +9,13 @@ class FileSystemFlatten(object):
     flatten and restore the file system
     """
 
-    def __init__(self, ops):
+    def __init__(self, in_folder):
         # the name of restore script
         self.restore_script = '#restore.sh'
         # separator of file name
         self.separator = '__'
         # input folder
-        self.input = ops.input
+        self.input = in_folder
 
     @staticmethod
     def add_quote(string):
@@ -45,8 +45,7 @@ class FileSystemFlatten(object):
                     i += 1
                 # incremental
                 i += 1
-            # add last line
-            rebuild_lines.append(lines[-1])
+            # last line is '\n', thus do not add it
 
         # rewrite file
         with open(path, 'w+') as r:
@@ -144,7 +143,7 @@ if __name__ == '__main__':
     parser.add_argument('--restore', '-r', action='store_true', help='if have: restore the file system')
     args = parser.parse_args()
 
-    flatten = FileSystemFlatten(args)
+    flatten = FileSystemFlatten(args.input)
     if args.restore:
         flatten.close_fs()
     else:
