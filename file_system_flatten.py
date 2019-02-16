@@ -15,7 +15,7 @@ class FileSystemFlatten(object):
         # separator of file name
         self.separator = '__'
         # input folder
-        self.input = in_folder
+        self.input = os.path.abspath(in_folder)
 
     @staticmethod
     def add_quote(string):
@@ -42,9 +42,10 @@ class FileSystemFlatten(object):
             while i < len(lines) - 1:
                 rebuild_lines.append(lines[i])
                 if lines[i] == lines[i + 1]:
+                    i += 2
+                else:
+                    # incremental
                     i += 1
-                # incremental
-                i += 1
             # last line is '\n', thus do not add it
 
         # rewrite file
@@ -58,7 +59,6 @@ class FileSystemFlatten(object):
         flatten the file system to the current folder
         :return: None
         """
-        self.input = os.path.abspath(self.input)
         print('=' * 50)
         print('-->[{}] flattening ~'.format(self.input))
         # start operation
