@@ -59,10 +59,10 @@ class FileSystemFlatten(object):
         :return: None
         """
         self.input = os.path.abspath(self.input)
-        print('-->[{}] is on operation ~'.format(self.input))
-        # start operation
         print('=' * 50)
-        print('Reading file system ~')
+        print('-->[{}] flattening ~'.format(self.input))
+        # start operation
+        print('\r~~>Read', end='')
         # search files
         fs = glob.glob(os.path.join(self.input, '**/*'), recursive=True)
         # search hidden files
@@ -72,7 +72,7 @@ class FileSystemFlatten(object):
         fs_folder = [x for x in fs if os.path.isdir(x)]
         fs_file.sort()
         fs_folder.sort()
-        print('Flatten file system ~')
+        print('\r~~>Read-->Flatten', end='')
         # write move script to file
         restore_have = False
         if os.path.exists(os.path.join(self.input, self.restore_script)):
@@ -118,22 +118,22 @@ class FileSystemFlatten(object):
                 folder_remove_command = ['rm', '-R', f]
                 subprocess.run(folder_remove_command)
 
-        print('Done flattening.')
+        print('\r~~>Read-->Flatten-->Done.')
         print('=' * 50)
 
     def close_fs(self):
         """
         restore the file system to original state
-        :param input: str;
         :return: None
         """
         if not os.path.exists(os.path.join(self.input, self.restore_script)):
             print('Restore script missing!!')
             return
         print('=' * 50)
-        print('Restore file system ~')
+        print('-->[{}] restoring ~'.format(self.input))
+        print('\r~~>Restore', end='')
         subprocess.run(['bash', os.path.join(self.input, self.restore_script)])
-        print('Done restoration.')
+        print('\r~~>Restore-->Done.')
         print('=' * 50)
 
 
