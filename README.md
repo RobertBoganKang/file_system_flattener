@@ -5,6 +5,7 @@ This script will flatten the file system in only one folder, and can restore. Th
 Initialize the class with: `FileSystemFlatten(<input_directory>)`, then use functions.
 * open_fs(): flatten the file system.
 * close_fs(): restore the file system (by python).
+
 The dropout file '#restore.sh' is the script that can restore the file system.
 ## Usage
 ```bash
