@@ -56,8 +56,7 @@ class BashScript(ScriptUtils):
     @staticmethod
     def write_self_remove_script(shell):
         """write self remove script"""
-        shell.write('rm $n')
-        shell.write('\n')
+        shell.write('rm $n\n')
 
     def run_script(self):
         """run"""
@@ -103,7 +102,6 @@ class BatchScript(ScriptUtils):
     def write_self_remove_script(shell):
         """write self remove script"""
         shell.write('del \"%n%\"\n')
-        shell.write('exit\n')
 
     def run_script(self):
         """run"""
