@@ -124,6 +124,8 @@ class FileSystemFlatten(object):
         self.system = platform.system()
         # the full name of restore script
         self.restore_script = None
+        # get script class
+        self.script = self.get_script_class()
 
     def delete_repeat(self):
         """
@@ -158,7 +160,6 @@ class FileSystemFlatten(object):
         flatten the file system to the current folder
         :return: None
         """
-        script = self.get_script_class()
         print('=' * 50)
         print('-->[{}] flattening ~'.format(self.input))
         # start operation
@@ -179,9 +180,9 @@ class FileSystemFlatten(object):
             restore_have = True
         with open(os.path.join(self.input, self.restore_script), 'a+') as shell:
             if not restore_have:
-                script.write_header_script(shell)
+                self.script.write_header_script(shell)
                 # write folder creation script
-                script.write_folder_creation_script(shell, fs_folder)
+                self.script.write_folder_creation_script(shell, fs_folder)
 
             # flatten the file and write the script
             for file in fs_file:
@@ -190,13 +191,13 @@ class FileSystemFlatten(object):
                 if file != target_path:
                     # write restoration script first in case of unwanted stop
                     # the program may write move script twice if stop
-                    script.write_move_script(shell, file, file_name)
+                    self.script.write_move_script(shell, file, file_name)
 
                     # then move the file
                     shutil.move(file, target_path)
 
             # write self remove script finally
-            script.write_self_remove_script(shell)
+            self.script.write_self_remove_script(shell)
 
             # remove folders reversely
             fs_folder.reverse()
@@ -212,14 +213,13 @@ class FileSystemFlatten(object):
         restore the file system to original state
         :return: None
         """
-        script = self.get_script_class()
         if not os.path.exists(os.path.join(self.input, self.restore_script)):
             print('Restore script missing!!')
             return
         print('=' * 50)
         print('-->[{}] restoring ~'.format(self.input))
         print('\r~~>[Restore|-->...', end='')
-        script.run_script()
+        self.script.run_script()
         print('\r~~>[Restore|-->|Done]')
         print('=' * 50)
 
@@ -228,10 +228,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='flatten and restore the file system')
     parser.add_argument('--input', '-i', help='the target folder for operation', type=str, default='in')
     parser.add_argument('--restore', '-r', action='store_true', help='if have: restore the file system')
-    args = parser.parse_args()
+    arg = parser.parse_args()
 
-    flatten = FileSystemFlatten(args.input)
-    if args.restore:
+    flatten = FileSystemFlatten(arg.input)
+    if arg.restore:
         flatten.close_fs()
     else:
         flatten.open_fs()
