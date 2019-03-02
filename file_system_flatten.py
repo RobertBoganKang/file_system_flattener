@@ -8,6 +8,10 @@ from itertools import groupby
 
 
 class ScriptUtils(object):
+    """
+    common method
+    """
+
     @staticmethod
     def add_quote(string):
         """
@@ -16,6 +20,22 @@ class ScriptUtils(object):
         :return: str; quoted path
         """
         return '\"' + string + '\"'
+
+    @staticmethod
+    def get_leaf_dir(paths):
+        """
+        get leaf dir of paths
+        :param paths: list(str); list of paths
+        :return: list(str); list of leaf paths
+        """
+        result = []
+        paths = paths + ['#']
+        for i in range(len(paths) - 1):
+            if paths[i] in paths[i + 1]:
+                continue
+            else:
+                result.append(paths[i])
+        return result
 
 
 class BashScript(ScriptUtils):
@@ -41,8 +61,8 @@ class BashScript(ScriptUtils):
 
     def write_folder_creation_script(self, shell, fs_folder):
         """write folder creation script"""
-        for f in fs_folder:
-            folder_creation_command = ['mkdir', self.add_quote(os.path.join('$p', f[len(self.input) + 1:]))]
+        for f in self.get_leaf_dir(fs_folder):
+            folder_creation_command = ['mkdir', '-p', self.add_quote(os.path.join('$p', f[len(self.input) + 1:]))]
             shell.write(' '.join(folder_creation_command))
             shell.write('\n')
 
@@ -86,7 +106,7 @@ class BatchScript(ScriptUtils):
 
     def write_folder_creation_script(self, shell, fs_folder):
         """write folder creation script"""
-        for f in fs_folder:
+        for f in self.get_leaf_dir(fs_folder):
             folder_creation_command = ['md', self.add_quote(os.path.join('%p%', f[len(self.input) + 1:]))]
             shell.write(' '.join(folder_creation_command))
             shell.write('\n')
