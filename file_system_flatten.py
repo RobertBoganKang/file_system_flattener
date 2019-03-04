@@ -57,7 +57,7 @@ class BashScript(ScriptUtils):
         # enter the current pwd for the file
         shell.write('p=$(cd `dirname $0`; pwd)\n')
         # get the file name
-        shell.write('n=`realpath $0`\n')
+        shell.write('n=$(basename $0)\n')
 
     def write_folder_creation_script(self, shell, fs_folder):
         """write folder creation script"""
@@ -76,7 +76,7 @@ class BashScript(ScriptUtils):
     @staticmethod
     def write_self_remove_script(shell):
         """write self remove script"""
-        shell.write('rm $n\n')
+        shell.write('rm \"$p/$n\"\n')
 
     def run_script(self):
         """run"""
