@@ -22,7 +22,21 @@ class ScriptUtils(object):
         return '\"' + string + '\"'
 
     @staticmethod
-    def get_leaf_dir(paths):
+    def test_in(test, in_something):
+        """
+        test whether string `test` in `in_something`
+        :param test: str; path last
+        :param in_something: str; path next
+        :return: bool; if `test` is in `in_something`
+        """
+        if len(test) > len(in_something):
+            return False
+        for i in range(len(test)):
+            if test[i] != in_something[i]:
+                return False
+        return True
+
+    def get_leaf_dir(self, paths):
         """
         get leaf dir of paths
         :param paths: list(str); list of paths
@@ -31,7 +45,7 @@ class ScriptUtils(object):
         result = []
         paths = paths + ['#']
         for i in range(len(paths) - 1):
-            if paths[i] in paths[i + 1]:
+            if self.test_in(paths[i], paths[i + 1]):
                 continue
             else:
                 result.append(paths[i])
