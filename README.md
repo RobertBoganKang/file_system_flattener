@@ -11,7 +11,7 @@ Initialize the class with: `FileSystemFlatten(<target_folder>)`, then use functi
 The dropout file `#restore.sh` or `#restore.bat` is the script that can restore the file system.
 ## Usage
 ```bash
-python3 -i <target_folder> -r
+python3 file_system_flatten.py -i <target_folder> -r
 ```
 * `-i` input folder.
 * `-r` if have: restore, not have: flatten.
