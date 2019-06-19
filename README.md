@@ -15,3 +15,4 @@ python3 file_system_flatten.py -i <target_folder> -r
 ```
 * `-i` input folder.
 * `-r` if have: restore, not have: flatten.
+* `-f` if have: the file will become folder to process (make sure the data flow is from file to folder with its name).

@@ -80,10 +80,14 @@ class BashScript(ScriptUtils):
             shell.write(' '.join(folder_creation_command))
             shell.write('\n')
 
-    def write_move_script(self, shell, file, file_name):
+    def write_move_script(self, shell, file, file_name, to_folder):
         """write restore move script"""
-        restore_mv_command = ['mv', self.add_quote(os.path.join('$p', file_name)),
-                              self.add_quote(os.path.join('$p', file[len(self.input) + 1:]))]
+        if to_folder:
+            restore_mv_command = ['mv', self.add_quote(os.path.join('$p', os.path.splitext(file_name)[0])),
+                                  self.add_quote(os.path.join('$p', os.path.splitext(file[len(self.input) + 1:])[0]))]
+        else:
+            restore_mv_command = ['mv', self.add_quote(os.path.join('$p', file_name)),
+                                  self.add_quote(os.path.join('$p', file[len(self.input) + 1:]))]
         shell.write(' '.join(restore_mv_command))
         shell.write('\n')
 
@@ -125,10 +129,14 @@ class BatchScript(ScriptUtils):
             shell.write(' '.join(folder_creation_command))
             shell.write('\n')
 
-    def write_move_script(self, shell, file, file_name):
+    def write_move_script(self, shell, file, file_name, to_folder):
         """write restore move script"""
-        restore_mv_command = ['move', self.add_quote(os.path.join('%p%', file_name)),
-                              self.add_quote(os.path.join('%p%', file[len(self.input) + 1:]))]
+        if to_folder:
+            restore_mv_command = ['move', self.add_quote(os.path.join('%p%', os.path.splitext(file_name)[0])),
+                                  self.add_quote(os.path.join('%p%', os.path.splitext(file[len(self.input) + 1:])[0]))]
+        else:
+            restore_mv_command = ['move', self.add_quote(os.path.join('%p%', file_name)),
+                                  self.add_quote(os.path.join('%p%', file[len(self.input) + 1:]))]
         shell.write(' '.join(restore_mv_command))
         shell.write('\n')
 
@@ -147,7 +155,7 @@ class FileSystemFlatten(object):
     flatten and restore the file system
     """
 
-    def __init__(self, in_folder):
+    def __init__(self, in_folder, to_folder=False):
         # the name of restore script
         self.restore = '#restore'
         # separator of file name
@@ -160,6 +168,8 @@ class FileSystemFlatten(object):
         self.restore_script = None
         # get script class
         self.script = self.get_script_class()
+        # file processed and result store in folder
+        self.to_folder = to_folder
 
     def delete_repeat(self):
         """
@@ -225,7 +235,7 @@ class FileSystemFlatten(object):
                 if file != target_path:
                     # write restoration script first in case of unwanted stop
                     # the program may write move script twice if stop
-                    self.script.write_move_script(shell, file, file_name)
+                    self.script.write_move_script(shell, file, file_name, self.to_folder)
 
                     # then move the file
                     shutil.move(file, target_path)
@@ -262,9 +272,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='flatten and restore the file system')
     parser.add_argument('--input', '-i', help='the target folder for operation', type=str, default='in')
     parser.add_argument('--restore', '-r', action='store_true', help='if have: restore the file system')
+    parser.add_argument('--to_folder', '-f', action='store_true',
+                        help='if have: file processed and result store in folder')
     arg = parser.parse_args()
 
-    flatten = FileSystemFlatten(arg.input)
+    flatten = FileSystemFlatten(arg.input, arg.to_folder)
     if arg.restore:
         flatten.close_fs()
     else:
