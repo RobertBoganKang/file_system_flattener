@@ -12,6 +12,18 @@ class ScriptUtils(object):
     common method
     """
 
+    def __init__(self):
+        self.special_char = ' !"$&\'()*:;<<=>?[\\]^`{|}'
+
+    def fix_unix_path(self, path):
+        path_rebuild = ''
+        for c in path:
+            if c in self.special_char:
+                path_rebuild += '\\' + c
+            else:
+                path_rebuild += c
+        return path_rebuild
+
     @staticmethod
     def add_quote(string):
         """
@@ -56,6 +68,7 @@ class BashScript(ScriptUtils):
     """Linux, Mac OS"""
 
     def __init__(self, in_folder, separator, restore):
+        super().__init__()
         # the name of restore script
         self.restore_script = restore + '.sh'
         # separator of file name
@@ -76,18 +89,19 @@ class BashScript(ScriptUtils):
     def write_folder_creation_script(self, shell, fs_folder):
         """write folder creation script"""
         for f in self.get_leaf_dir(fs_folder):
-            folder_creation_command = ['mkdir', '-p', self.add_quote(os.path.join('$p', f[len(self.input) + 1:]))]
+            folder_creation_command = ['mkdir', '-p', os.path.join('$p', self.fix_unix_path(f[len(self.input) + 1:]))]
             shell.write(' '.join(folder_creation_command))
             shell.write('\n')
 
     def write_move_script(self, shell, file, file_name, to_folder):
         """write restore move script"""
         if to_folder:
-            restore_mv_command = ['mv', self.add_quote(os.path.join('$p', os.path.splitext(file_name)[0])),
-                                  self.add_quote(os.path.join('$p', os.path.splitext(file[len(self.input) + 1:])[0]))]
+            restore_mv_command = ['mv', os.path.join('$p', self.fix_unix_path(os.path.splitext(file_name)[0])),
+                                  os.path.join('$p',
+                                               self.fix_unix_path(os.path.splitext(file[len(self.input) + 1:])[0]))]
         else:
-            restore_mv_command = ['mv', self.add_quote(os.path.join('$p', file_name)),
-                                  self.add_quote(os.path.join('$p', file[len(self.input) + 1:]))]
+            restore_mv_command = ['mv', os.path.join('$p', self.fix_unix_path(file_name)),
+                                  os.path.join('$p', self.fix_unix_path(file[len(self.input) + 1:]))]
         shell.write(' '.join(restore_mv_command))
         shell.write('\n')
 
@@ -105,6 +119,7 @@ class BatchScript(ScriptUtils):
     """Windows"""
 
     def __init__(self, in_folder, separator, restore):
+        super().__init__()
         # the name of restore script
         self.restore_script = restore + '.bat'
         # separator of file name
@@ -159,7 +174,7 @@ class FileSystemFlatten(object):
         # the name of restore script
         self.restore = '#restore'
         # separator of file name
-        self.separator = '__'
+        self.separator = '_@__'
         # input folder
         self.input = os.path.abspath(in_folder)
         # get system
@@ -186,8 +201,8 @@ class FileSystemFlatten(object):
 
         # rewrite file
         with open(path, 'w+') as r:
-            for l in rebuild_lines:
-                r.write(l)
+            for ll in rebuild_lines:
+                r.write(ll)
                 r.write('\n')
 
     def get_script_class(self):
@@ -205,7 +220,7 @@ class FileSystemFlatten(object):
         :return: None
         """
         print('=' * 50)
-        print('-->[{}] flattening ~'.format(self.input))
+        print(f'-->[{self.input}] flattening ~')
         # start operation
         print('\r~~>[Read|-->...', end='')
         # search files
@@ -258,10 +273,10 @@ class FileSystemFlatten(object):
         :return: None
         """
         if not os.path.exists(os.path.join(self.input, self.restore_script)):
-            print('Restore script missing!!')
+            print('WARNING: restore script missing!!')
             return
         print('=' * 50)
-        print('-->[{}] restoring ~'.format(self.input))
+        print(f'-->[{self.input}] restoring ~')
         print('\r~~>[Restore|-->...', end='')
         self.script.run_script()
         print('\r~~>[Restore|-->|Done]')
