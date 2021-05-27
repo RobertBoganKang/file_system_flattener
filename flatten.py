@@ -7,6 +7,8 @@ import subprocess
 import uuid
 from itertools import groupby
 
+from tqdm import tqdm
+
 
 class ScriptUtils(object):
     """
@@ -107,7 +109,7 @@ class BashScript(ScriptUtils):
 
     def run_script(self):
         """run"""
-        subprocess.Popen(['bash', os.path.join(self.input, self.restore_script)])
+        subprocess.call(['bash', os.path.join(self.input, self.restore_script)])
 
 
 class BatchScript(ScriptUtils):
@@ -151,7 +153,7 @@ class BatchScript(ScriptUtils):
 
     def run_script(self):
         """run"""
-        subprocess.Popen(os.path.join(self.input, self.restore_script), shell=True, stdout=subprocess.PIPE)
+        subprocess.call(os.path.join(self.input, self.restore_script), shell=True, stdout=subprocess.PIPE)
 
 
 class FileSystemFlatten(object):
@@ -228,16 +230,19 @@ class FileSystemFlatten(object):
                 self.script.write_folder_creation_script(shell, fs_folder)
 
             # flatten the file and write the script
-            for file in fs_file:
-                file_extension = os.path.splitext(file)[-1]
-                file_name = str(uuid.uuid1()).split('-')[0] + file_extension
-                target_path = os.path.join(self.input, file_name)
-                # write restoration script first in case of unwanted stop
-                # the program may write move script twice if stop
-                self.script.write_move_script(shell, file, file_name)
+            with tqdm(total=len(fs_file)) as p_bar:
+                for file in fs_file:
+                    file_extension = os.path.splitext(file)[-1]
+                    file_name = str(uuid.uuid1()).split('-')[0] + file_extension
+                    target_path = os.path.join(self.input, file_name)
+                    # write restoration script first in case of unwanted stop
+                    # the program may write move script twice if stop
+                    self.script.write_move_script(shell, file, file_name)
 
-                # then move the file
-                shutil.move(file, target_path)
+                    # then move the file
+                    shutil.move(file, target_path)
+
+                    p_bar.update()
 
             # write self remove script finally
             self.script.write_self_remove_script(shell)
