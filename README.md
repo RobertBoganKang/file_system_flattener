@@ -8,11 +8,11 @@ Initialize the class with: `FileSystemFlatten(<target_folder>)`, then use functi
 * open_fs(): flatten the file system.
 * close_fs(): restore the file system (by python).
 
-The dropout file `#restore.sh` or `#restore.bat` is the script that can restore the file system.
+The dropout file `#_restore.sh` or `#_restore.bat` at input folder is the script that can restore the file system.
 ## Usage
 ```bash
-python3 file_system_flatten.py -i <target_folder> -r
+python flatten.py -i <target_folder> -r
 ```
-* `-i` input folder.
-* `-r` if have: restore, not have: flatten.
-* `-f` if have: the file will become folder to process (make sure the data flow is from file to folder with its name).
+* `-i` input folder;
+* `-r` if have: to restore; not have: to flatten;
+
