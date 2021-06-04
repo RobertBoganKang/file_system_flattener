@@ -5,7 +5,6 @@ import platform
 import shutil
 import subprocess
 import uuid
-from itertools import groupby
 
 from tqdm import tqdm
 
@@ -91,21 +90,19 @@ class BashScript(ScriptUtils):
         """write folder creation script"""
         for f in self.get_leaf_dir(fs_folder):
             folder_creation_command = ['mkdir', '-p', os.path.join('$p', self.fix_unix_path(f[len(self.input) + 1:]))]
-            shell.write(' '.join(folder_creation_command))
-            shell.write('\n')
+            shell.write(' '.join(folder_creation_command) + '\n')
 
     def write_move_script(self, shell, file, file_name):
         """write restore move script"""
 
         restore_mv_command = ['mv', os.path.join('$p', self.fix_unix_path(file_name)),
                               os.path.join('$p', self.fix_unix_path(file[len(self.input) + 1:]))]
-        shell.write(' '.join(restore_mv_command))
-        shell.write('\n')
+        shell.write(' '.join(restore_mv_command) + '\n')
 
     @staticmethod
     def write_self_remove_script(shell):
         """write self remove script"""
-        shell.write('rm \"$p/$n\"\n')
+        shell.write('rm $p/$n\n')
 
     def run_script(self):
         """run"""
@@ -136,15 +133,13 @@ class BatchScript(ScriptUtils):
         """write folder creation script"""
         for f in self.get_leaf_dir(fs_folder):
             folder_creation_command = ['md', self.add_quote(os.path.join('%p%', f[len(self.input) + 1:]))]
-            shell.write(' '.join(folder_creation_command))
-            shell.write('\n')
+            shell.write(' '.join(folder_creation_command) + '\n')
 
     def write_move_script(self, shell, file, file_name):
         """write restore move script"""
         restore_mv_command = ['move', self.add_quote(os.path.join('%p%', file_name)),
                               self.add_quote(os.path.join('%p%', file[len(self.input) + 1:]))]
-        shell.write(' '.join(restore_mv_command))
-        shell.write('\n')
+        shell.write(' '.join(restore_mv_command) + '\n')
 
     @staticmethod
     def write_self_remove_script(shell):
@@ -180,17 +175,15 @@ class FileSystemFlatten(object):
         """
         path = os.path.join(self.input, self.restore_script)
         # rebuild restoration file
-        with open(path, 'r') as r:
-            lines = r.readlines()
-            lines = [x.strip() for x in lines]
-            # detect repeat and delete
-            rebuild_lines = [x[0] for x in groupby(lines)]
-
-        # rewrite file
-        with open(path, 'w+') as r:
+        with open(path, 'r') as f:
+            rebuild_lines = []
+            for line in f.readlines():
+                l_ = line.strip()
+                if l_ not in rebuild_lines:
+                    rebuild_lines.append(l_)
+        with open(path, 'w') as w:
             for ll in rebuild_lines:
-                r.write(ll)
-                r.write('\n')
+                w.write(ll + '\n')
 
     def get_script_class(self):
         """return script class and set script name (poly-morphism)"""
